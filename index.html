@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, target-densityDpi=device-dpi, minimal-ui' />
+    <title>Ayush Shukla | Portfolio</title>
+    <link rel="preload" href="/models/Finale%20Version%2016.glb" as="fetch" crossorigin="anonymous" />
+    <link rel="preload" href="/draco/draco_wasm_wrapper.js" as="script" />
+    <link rel="preload" href="/draco/draco_decoder.wasm" as="fetch" crossorigin="anonymous" />
+    <meta property="og:title" content="Ayush Shukla"/>
+    <meta name="description" content="Ayush Shukla 3D Portfolio - AI Engineer & Unity Developer"/>
+    <meta property="og:description" content="Ayush Shukla Portfolio"/>
+    <meta property="og:url" content=""/>
+    <meta property="og:image" content="https://github.com/technospes"/>
+    <meta name="twitter:card" content="summary"/>
+    
+    <style>
+      .nav-container {
+        position: fixed;
+        top: 20px;
+        left: 0;
+        z-index: 99999999;
+        transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); 
+      }
+
+      .header-dock-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+      }
+      .shift-center { transform: translateX(calc(50vw - 50%)); }
+      .shift-left { transform: translateX(4vw); }
+      .shift-right { transform: translateX(calc(96vw - var(--nav-width, 540px))); }
+
+      .nav-dock {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 4px 12px;
+        border-radius: 30px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        transition: background 0.5s, border-color 0.5s, box-shadow 0.5s;
+      }
+      .dark-theme .nav-dock {
+        background: rgba(30, 41, 59, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 2px;
+        margin: 0;
+        padding: 0;
+        align-items: center;
+      }
+      .nav-item {
+        position: relative;
+        padding: 6px 10px;
+        text-decoration: none;
+        color: #555555;
+        font-size: 11.5px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        transition: color 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .dark-theme .nav-item { color: #cccccc; }
+      
+      .nav-item:hover { color: #1a1a1a; }
+      .dark-theme .nav-item:hover { color: #ffffff; }
+      
+      .home-icon {
+        width: 14px;
+        height: 14px;
+        transition: transform 0.3s ease;
+      }
+      .nav-item:hover .home-icon { transform: scale(1.05); }
+
+      .nav-item::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 10px;
+        right: 10px;
+        height: 2px;
+        background: #333333;
+        border-radius: 2px;
+        transform: scaleX(0);
+        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+      .dark-theme .nav-item::after { background: #ffffff; }
+      .nav-item.active-nav-link { 
+        color: #000000 !important; 
+        font-weight: 500;
+        text-shadow: 0 0 0.5px #000000;
+      }
+      .dark-theme .nav-item.active-nav-link { 
+        color: #ffffff !important; 
+        text-shadow: 0 0 0.5px #ffffff;
+      }
+      .nav-item.active-nav-link::after { transform: scaleX(1); box-shadow: none; }
+
+      /* Integrated Light/Dark Mode Switch Customization */
+      .toggle-bar {
+        position: relative !important;
+        top: unset !important;
+        right: unset !important;
+        opacity: 1 !important;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        transform: scale(0.85);
+      }
+
+      @media (max-width: 968px) {
+        .shift-left, .shift-right { transform: translateX(calc(50vw - 50%)) !important; }
+        .header-dock-wrapper { gap: 8px; }
+        .nav-dock { padding: 4px 6px; }
+        .nav-item { padding: 4px 6px; font-size: 10px; }
+        .nav-item::after { left: 6px; right: 6px; }
+        .toggle-bar { transform: scale(0.75); }
+      }
+      /* --- Volume Slider Hover Effect --- */
+      .volume-container {
+        display: flex;
+        align-items: center;
+      }
+
+      .volume-slider {
+        width: 0px;
+        opacity: 0;
+        cursor: pointer;
+        accent-color: var(--color-blue);
+        transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease, margin 0.3s ease;
+        margin-left: 0;
+      }
+
+      /* Expand the slider when hovering over the container */
+      .volume-container:hover .volume-slider {
+        width: 70px; /* Small, minimal horizontal slider */
+        opacity: 1;
+        margin-left: 8px;
+      }
+    </style>
+  </head>
+  <body class="light-theme">
+    
+    <div id="main-nav-container" class="nav-container shift-center">
+      <div class="header-dock-wrapper">
+        <nav class="nav-dock">
+          <div class="nav-links">
+            <a href="#" class="nav-item active-nav-link" data-target="hero-top" title="Home">
+              <svg class="home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </a>
+            <a href="#about-me-section" class="nav-item" data-target="about-me-section">About Me</a>
+            <a href="#projects-section" class="nav-item" data-target="projects-section">Projects</a>
+            <a href="#work-experience-section" class="nav-item" data-target="work-experience-section">Experience</a>
+            <a href="#contact-section" class="nav-item" data-target="contact-section">Contact</a>
+            <a href="/_Ayush_Shukla.pdf" download="Ayush_Shukla_Resume.pdf" class="nav-item" style="color: #38B6FF; font-weight: 600; padding-right: 4px;">Resume ⬇</a>
+          </div>
+        </nav>
+
+        <div class="toggle-bar">
+          <div class="sun-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path fill="currentColor" d="M12 5Q11.575 5 11.288 4.712Q11 4.425 11 4V2Q11 1.575 11.288 1.287Q11.575 1 12 1Q12.425 1 12.713 1.287Q13 1.575 13 2V4Q13 4.425 12.713 4.712Q12.425 5 12 5ZM16.95 7.05Q16.675 6.775 16.675 6.362Q16.675 5.95 16.95 5.65L18.35 4.225Q18.65 3.925 19.062 3.925Q19.475 3.925 19.775 4.225Q20.05 4.5 20.05 4.925Q20.05 5.35 19.775 5.625L18.35 7.05Q18.075 7.325 17.65 7.325Q17.225 7.325 16.95 7.05ZM20 13Q19.575 13 19.288 12.712Q19 12.425 19 12Q19 11.575 19.288 11.287Q19.575 11 20 11H22Q22.425 11 22.712 11.287Q23 11.575 23 12Q23 12.425 22.712 12.712Q22.425 13 22 13ZM12 23Q11.575 23 11.288 22.712Q11 22.425 11 22V20Q11 19.575 11.288 19.288Q11.575 19 12 19Q12.425 19 12.713 19.288Q13 19.575 13 20V22Q13 22.425 12.713 22.712Q12.425 23 12 23ZM5.65 7.05 4.225 5.65Q3.925 5.35 3.925 4.925Q3.925 4.5 4.225 4.225Q4.5 3.95 4.925 3.95Q5.35 3.95 5.625 4.225L7.05 5.65Q7.325 5.925 7.325 6.35Q7.325 6.775 7.05 7.05Q6.75 7.325 6.35 7.325Q5.95 7.325 5.65 7.05ZM18.35 19.775 16.95 18.35Q16.675 18.05 16.675 17.638Q16.675 17.225 16.95 16.95Q17.225 16.675 17.638 16.675Q18.05 16.675 18.35 16.95L19.775 18.35Q20.075 18.625 20.062 19.05Q20.05 19.475 19.775 19.775Q19.475 20.075 19.05 20.075Q18.625 20.075 18.35 19.775ZM2 13Q1.575 13 1.288 12.712Q1 12.425 1 12Q1 11.575 1.288 11.287Q1.575 11 2 11H4Q4.425 11 4.713 11.287Q5 11.575 5 12Q5 12.425 4.713 12.712Q4.425 13 4 13ZM4.225 19.775Q3.95 19.5 3.95 19.075Q3.95 18.65 4.225 18.375L5.65 16.95Q5.925 16.675 6.338 16.675Q6.75 16.675 7.05 16.95Q7.35 17.25 7.35 17.663Q7.35 18.075 7.05 18.375L5.65 19.775Q5.35 20.075 4.925 20.075Q4.5 20.075 4.225 19.775ZM12 18Q9.5 18 7.75 16.25Q6 14.5 6 12Q6 9.5 7.75 7.75Q9.5 6 12 6Q14.5 6 16.25 7.75Q18 9.5 18 12Q18 14.5 16.25 16.25Q14.5 18 12 18ZM12 16Q13.65 16 14.825 14.825Q16 13.65 16 12Q16 10.35 14.825 9.175Q13.65 8 12 8Q10.35 8 9.175 9.175Q8 10.35 8 12Q8 13.65 9.175 14.825Q10.35 16 12 16Z"/></svg>
+          </div>
+          <button class="toggle-button">
+            <div class="toggle-circle"></div>
+          </button>
+          <div class="moon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path fill="currentColor" d="M12 21Q8.25 21 5.625 18.375Q3 15.75 3 12Q3 8.25 5.625 5.625Q8.25 3 12 3Q12.35 3 12.688 3.025Q13.025 3.05 13.35 3.1Q12.325 3.825 11.713 4.987Q11.1 6.15 11.1 7.5Q11.1 9.75 12.675 11.325Q14.25 12.9 16.5 12.9Q17.875 12.9 19.025 12.287Q20.175 11.675 20.9 10.65Q20.95 10.975 20.975 11.312Q21 11.65 21 12Q21 15.75 18.375 18.375Q15.75 21 12 21ZM12 19Q14.2 19 15.95 17.788Q17.7 16.575 18.5 14.625Q18 14.75 17.5 14.825Q17 14.9 16.5 14.9Q13.425 14.9 11.262 12.738Q9.1 10.575 9.1 7.5Q9.1 7 9.175 6.5Q9.25 6 9.375 5.5Q7.425 6.3 6.213 8.05Q5 9.8 5 12Q5 14.9 7.05 16.95Q9.1 19 12 19ZM11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Q11.75 12.25 11.75 12.25Z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="experience">
+      <canvas class="experience-canvas"></canvas>
+    </div>
+
+    <div class="preloader">
+      <div class="preloader-wrapper">
+        <div class="loading">
+          <div class="circle"></div>
+          <div class="circle"></div>
+          <div class="circle"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" asscroll-container>
+      
+      <div class="page-wrapper" asscroll>
+        <section class="hero" id="hero-top">
+          <div class="hero-wrapper" style="z-index: 10; position: relative;">
+            <div class="intro-text">Building AI that sees, understands, and interacts.</div>
+            <div class="arrow-svg-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; opacity: 0.7;">Scroll to explore</span>
+              <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path fill="currentColor" d="M12 14.95q-.2 0-.375-.063-.175-.062-.325-.212L6.675 10.05q-.275-.275-.262-.688.012-.412.287-.687.275-.275.7-.275.425 0 .7.275l3.9 3.9 3.925-3.925q.275-.275.688-.263.412.013.687.288.275.275.275.7 0 .425-.275.7l-4.6 4.6q-.15.15-.325.212-.175.063-.375.063Z"/></svg>
+            </div>
+
+            <div class="hero-main">
+              <h1 class="hero-main-title">Ayush Shukla</h1>
+              <p class="hero-main-description">AI/ML Engineer • Computer Vision • AR/VR</p>
+            </div>
+          </div>
+
+          <div class="diagonal-marquee top-left-marquee">
+              <div class="marquee-track">
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / AURA</div><div class="snippet-wrapper"><img src="/Code_Snippet_Jarvis.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #3572A5;"></span> Python</div><div>⭐ 12 &nbsp;&nbsp; 🍴 2</div></div></div>
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / AgriFixAR</div><div class="snippet-wrapper"><img src="/Code_Snippet_AgriFix.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #3572A5;"></span> Python</div><div>⭐ 8 &nbsp;&nbsp; 🍴 1</div></div></div>
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / StrikeSync</div><div class="snippet-wrapper"><img src="/Code_Snippet_StrikeSync.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #f34b7d;"></span> C#</div><div>⭐ 15 &nbsp;&nbsp; 🍴 3</div></div></div>
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / AURA</div><div class="snippet-wrapper"><img src="/Code_Snippet_Jarvis.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #3572A5;"></span> Python</div><div>⭐ 12 &nbsp;&nbsp; 🍴 2</div></div></div>
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / AgriFixAR</div><div class="snippet-wrapper"><img src="/Code_Snippet_AgriFix.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #3572A5;"></span> Python</div><div>⭐ 8 &nbsp;&nbsp; 🍴 1</div></div></div>
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / StrikeSync</div><div class="snippet-wrapper"><img src="/Code_Snippet_StrikeSync.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #f34b7d;"></span> C#</div><div>⭐ 15 &nbsp;&nbsp; 🍴 3</div></div></div>
+              </div>
+            </div>
+
+            <div class="diagonal-marquee bottom-right-marquee">
+              <div class="marquee-track track-reverse">
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / StrikeSync</div><div class="snippet-wrapper"><img src="/Code_Snippet_StrikeSync.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #f34b7d;"></span> C#</div><div>⭐ 15 &nbsp;&nbsp; 🍴 3</div></div></div>
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / AgriFixAR</div><div class="snippet-wrapper"><img src="/Code_Snippet_AgriFix.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #3572A5;"></span> Python</div><div>⭐ 8 &nbsp;&nbsp; 🍴 1</div></div></div>
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / AURA</div><div class="snippet-wrapper"><img src="/Code_Snippet_Jarvis.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #3572A5;"></span> Python</div><div>⭐ 12 &nbsp;&nbsp; 🍴 2</div></div></div>
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / StrikeSync</div><div class="snippet-wrapper"><img src="/Code_Snippet_StrikeSync.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #f34b7d;"></span> C#</div><div>⭐ 15 &nbsp;&nbsp; 🍴 3</div></div></div>
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / AgriFixAR</div><div class="snippet-wrapper"><img src="/Code_Snippet_AgriFix.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #3572A5;"></span> Python</div><div>⭐ 8 &nbsp;&nbsp; 🍴 1</div></div></div>
+                <div class="github-flat-card"><div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> technospes / AURA</div><div class="snippet-wrapper"><img src="/Code_Snippet_Jarvis.png" class="snippet-img" /></div><div class="card-footer"><div style="display: flex; align-items: center;"><span class="lang-dot" style="background-color: #3572A5;"></span> Python</div><div>⭐ 12 &nbsp;&nbsp; 🍴 2</div></div></div>
+              </div>
+            </div>
+        </section>
+
+        <div class="first-move section-margin"></div>
+
+        <section id="about-me-section" class="first-section section left">
+          <div class="progress-wrapper progress-bar-wrapper-left">
+            <div class="progress-bar"></div>
+          </div>
+
+        <div class="section-intro-wrapper">
+          <h1 class="section-title">
+            <span class="section-title-text">About Me</span>
+            <div class="section-title-decoration styleTwo"></div>
+            <div class="section-title-decoration styleThree"></div>
+          </h1>
+          <div class="profile-photo-wrapper">
+            <img src="/Profile_Photo.png" alt="Ayush" class="profile-photo" />
+          </div>
+          <span class="section-number">01</span>
+        </div>
+
+          <div class="section-detail-wrapper">
+            <p class="section-text">I am an AI/ML Engineer specializing in real-time Computer Vision (30-60 FPS), production-ready RAG systems (&lt;100 ms retrieval), and highly reliable backend pipelines. I focus heavily on writing production-grade software that bridges the gap between hardware constraints and advanced machine learning models.</p>
+            <p class="section-text">With deep exposure across computer vision frameworks, generative model tuning, and low-latency rendering, I design intelligent agents that seamlessly interact with real-world environments through touchless controls and scalable architectures.</p>
+            
+            <br><br><br>
+            <h1 id="education">EDUCATION</h1>
+            <br><br>
+            <h3 style="color: var(--color-text); font-weight: 700;">Galgotias College of Engineering and Technology</h3>
+            <h4 style="color: var(--color-text); margin-top: 6px;">Bachelor of Technology in Computer Science & Engineering</h4>
+            <p class="section-text" style="margin-top: 4px;">Expected graduation: May 2027 | Uttar Pradesh, India</p>
+            <p class="section-text" style="margin-top: 4px;"><strong>Relevant Coursework:</strong> Artificial Intelligence, Data Structures & Algorithms, OS, DBMS, Probability & Statistics, Linear Algebra.</p>
+            
+            <br><br><br>
+            <h1 id="skills">TECHNICAL SKILLS</h1>
+            <br><br>
+            <p class="section-text"><strong>AI/ML:</strong> PyTorch, YOLO, OpenCV, MediaPipe, Whisper, Hugging Face, scikit-learn, NumPy, Pandas</p>
+            <p class="section-text"><strong>Model Training & Evaluation:</strong> QLoRA, LoRA, SFT Data Prep, DPO Dataset Construction, Hugging Face Trainer, MLflow</p>
+            <p class="section-text"><strong>Vector Databases & RAG:</strong> Pinecone, ChromaDB, FAISS</p>
+            <p class="section-text"><strong>Backend & Systems:</strong> FastAPI, Multithreading, CUDA, WebSockets, UDP, orjson, Docker, Rate Limiting</p>
+            <p class="section-text"><strong>Languages & Graphics:</strong> Python (Expert), C++, C#, C, Unity 3D</p>
+          </div>
+        </section>
+
+        <div class="second-move section-margin"></div>
+
+        <section id="projects-section" class="second-section section right">
+          <div class="progress-wrapper progress-bar-wrapper-right">
+            <div class="progress-bar blue-background"></div>
+          </div>
+
+          <div class="section-intro-wrapper blue-text blue-border">
+            <h1 class="section-title blue-text blue-border">
+              <span class="section-title-text blue-text">My Projects</span>
+              <!-- <div class="section-title-decoration styleOne blue-border"></div> -->
+              <div class="section-title-decoration styleTwo blue-border"></div>
+              <div class="section-title-decoration styleThree blue-background blue-border"></div>
+            </h1>
+            <span class="section-number blue-text">02</span>
+          </div>
+
+          <div class="section-detail-wrapper">
+            <div class="project-header">
+              <h3 class="section-heading" style="margin-top: 0;">AURA — Vision-Language AI Agent</h3>
+              <div class="project-actions">
+                <a href="https://github.com/technospes/AURA_Project" target="_blank" class="project-action-btn github-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                  GitHub
+                </a>
+                <button class="project-action-btn preview-btn" data-video-src="/videos/aura-demo.mp4">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  View Preview
+                </button>
+              </div>
+            </div>
+            <p class="section-text">Built a real-time multimodal AI agent integrating vision (OpenCV + MediaPipe) and voice (Whisper + LLM APIs), achieving a smooth 60 FPS profile using threaded pipelines and non-blocking asynchronous inference systems.</p>
+            <p class="section-text">• Implemented gesture-driven OS navigation (cursor control, typing, application management) configured with temporal smoothing and adaptive noise filtering to retain precision across rapid motion.</p>
+            <p class="section-text">• Formulated an asynchronous voice and tool-calling infrastructure running concurrent execution states within strict standard laptop memory ceilings (&lt;4 GB RAM, CPU fallback).</p>
+            <br>
+
+            <div class="project-header">
+              <h3 class="section-heading">AgriFix AI — Multimodal Repair Assistant</h3>
+              <div class="project-actions">
+                <a href="https://github.com/technospes/AgriFixAR-Pocket_Mechanic" target="_blank" class="project-action-btn github-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                  GitHub
+                </a>
+                <button class="project-action-btn preview-btn" data-video-src="/videos/agrifix-demo.mp4">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  View Preview
+                </button>
+              </div>
+            </div>
+            <p class="section-text">Developed a multimodal AI processing pipeline (Whisper → MobileCLIP → ChromaDB → Gemini) delivering dynamic, context-aware mechanical guidance generated directly from audio-visual farm inputs.</p>
+            <p class="section-text">• Highly optimized vector retrieval layers (&lt;100 ms) and reliable structured extraction schemes capable of filtering out extreme environmental noise and adversarial prompt-injections.</p>
+            <p class="section-text">• Containerized backend services built on FastAPI using robust input-validation structures for portable, deterministic deployments via Docker.</p>
+            <br>
+
+            <div class="project-header">
+              <h3 class="section-heading">StrikeSync — Real-Time Motion Capture Engine</h3>
+              <div class="project-actions">
+                <a href="https://github.com/technospes/StrikeSync_Project" target="_blank" class="project-action-btn github-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                  GitHub
+                </a>
+                <button class="project-action-btn preview-btn" data-video-src="/videos/strikesync-demo.mp4">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  View Preview
+                </button>
+              </div>
+            </div>
+            <p class="section-text">Architected an ultra-low latency skeletal tracking motion pipeline streaming motion vectors directly across diverse engines (Python → Node.js → Unity) at 30+ FPS without proprietary hardware tracking.</p>
+            <p class="section-text">• Leveraged CUDA-accelerated YOLO models paired with intelligent adaptive frame skipping, optimizing workflows for both discrete high-end GPUs and CPU edge fallbacks.</p>
+            <p class="section-text">• Implemented lightweight serialization over high-frequency UDP pipelines integrated with custom threshold data-smoothing to neutralize frame drops and network jitter.</p>
+          </div>
+        </section>
+        
+        <div class="third-move section-margin"></div>
+
+        <section id="work-experience-section" class="third-section section left">
+          <div class="progress-wrapper progress-bar-wrapper-left">
+            <div class="progress-bar green-background"></div>
+          </div>
+
+          <div class="section-intro-wrapper green-text green-border">
+            <h1 class="section-title green-text green-border">
+              <span class="section-title-text green-text">Experience</span>
+              <!-- <div class="section-title-decoration styleOne green-border"></div> -->
+              <div class="section-title-decoration styleTwo green-border"></div>
+              <div class="section-title-decoration styleThree green-background green-border"></div>
+            </h1>
+            <span class="section-number green-text">03</span>
+          </div>
+
+          <div class="section-detail-wrapper">
+            <h4 style="font-size: 20px; font-weight: 700; color: var(--color-text);">HexSoftwares</h4>
+            <p style="font-size: 14px; font-weight: 600; color: #38B6FF; margin-top: 4px;">AI Engineer Intern <span style="color: var(--color-text); font-weight: 400; opacity: 0.7;">| Remote, India (Oct 2025 - Dec 2025)</span></p>
+            <br>
+            <p class="section-text">• <strong>RAG Pipeline Architecture:</strong> Designed production RAG topologies (Pinecone + Hugging Face) yielding a 42% reduction in end-to-end query latency (120 ms → 70 ms) via batch document ingestion algorithms and parallelized retrieval logic.</p>
+            <p class="section-text">• <strong>Fault-Isolated Systems:</strong> Engineered asynchronous backend services splitting text embedding, vector lookups, and model inference into decoupled modules guarded by robust fallback handlers and strict request constraints.</p>
+            
+            <br><br><br>
+            <h2 id="recommendation-letter" style="font-size: 26px; font-weight: 700; text-transform: uppercase;">Honors & Achievements</h2>
+            <br>
+            <p class="section-text">• <strong>1st Place Winner</strong> — HackOverflow v9.0 (2025) outperforming 600+ national competitors with an AI-powered AR system.</p>
+            <p class="section-text">• <strong>National Finalist</strong> — Smart India Hackathon (SIH) 2025.</p>
+            <p class="section-text">• <strong>Finalist</strong> — India Innovates (Asia's largest hackathon arena, scaling across 20,000+ technical teams).</p>
+            <p class="section-text">• <strong>Selected Finalist</strong> — CosmoHack 1, DataVerse, and BITS Pilani TechSeva competitive tracks.</p>
+            <p class="section-text">• <strong>Top 5</strong> — Axis HackSprint (National Technical Tier).</p>
+          </div>
+        </section>
+
+        <div class="second-move section-margin"></div>
+
+        <section id="contact-section" class="second-section section right">
+          <div class="progress-wrapper progress-bar-wrapper-right">
+            <div class="progress-bar blue-background"></div>
+          </div>
+
+          <div class="section-intro-wrapper blue-text blue-border">
+            <h1 class="section-title blue-text blue-border">
+              <span class="section-title-text blue-text">CONTACT</span>
+              <!-- <div class="section-title-decoration styleOne blue-border"></div> -->
+              <div class="section-title-decoration styleTwo blue-border"></div>
+              <div class="section-title-decoration styleThree blue-background blue-border"></div>
+            </h1>
+            <span class="section-number blue-text">04</span>
+          </div>
+
+          <div class="section-detail-wrapper">
+            <h3 class="section-heading" style="margin-top: 0;">Let's Connect</h3>
+            <p class="section-text">I am regularly open to technical discussions regarding real-time vision setups, optimization across high-throughput model backends, or immersive interactive graphics pipelines. Reach out via email or any of my active networking portals:</p>
+            <br>
+            
+            <p class="section-text">📧 <strong>Email:</strong> <a href="mailto:ayushshukla6917@gmail.com" style="color: #38B6FF; text-decoration: none;">ayushshukla6917@gmail.com</a></p>
+            <br><br>
+            
+            <h3 class="section-heading">Linkedin</h3>
+            <p class="section-text">Let's coordinate on industry-level AI integration paradigms or production engineering frameworks.</p>
+            <p style="margin-top: 12px;"><a href="https://www.linkedin.com/in/ayushshukla-ar/" target="_blank"><img src="https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&amp;logoColor=white" alt="LinkedIn"></a></p>
+            <br>
+            
+            <h3 class="section-heading">Github</h3>
+            <p class="section-text">Explore full open-source setups for low-latency trackers, multithreaded pipelines, and robust system code layers.</p>
+            <p style="margin-top: 12px;"><a href="https://github.com/technospes" target="_blank"><img src="https://img.shields.io/badge/Github-12100E?logo=github&amp;logoColor=white" alt="GitHub"></a></p>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <span class="footer__copyright">Copyright &copy; 2026 - Ayush Shukla</span>
+        </footer><br><br>
+
+      </div>
+    </div>
+    
+    <script type="module" src="/main.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const sections = document.querySelectorAll("#hero-top, #about-me-section, #projects-section, #work-experience-section, #contact-section");
+        const navItems = document.querySelectorAll(".nav-item[data-target]");
+        const navContainer = document.getElementById("main-nav-container");
+
+        // Dynamically measure header size to maintain pixel-perfect bounding constraints
+        const updateNavbarWidth = () => {
+          const width = navContainer.querySelector('.header-dock-wrapper').offsetWidth;
+          document.documentElement.style.setProperty('--nav-width', `${width}px`);
+        };
+        updateNavbarWidth();
+        window.addEventListener('resize', updateNavbarWidth);
+
+        // Smooth Scroll Handling
+        navItems.forEach(item => {
+          item.addEventListener("click", (e) => {
+            const targetId = item.getAttribute("data-target");
+            if (targetId === "hero-top") {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          });
+        });
+
+        // Intersection Observer for layout offsets
+        const observerOptions = {
+          root: null,
+          rootMargin: "-30% 0px -50% 0px", 
+          threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const currentId = entry.target.getAttribute("id");
+
+              navItems.forEach(item => {
+                if (item.getAttribute("data-target") === currentId) {
+                  item.classList.add("active-nav-link");
+                } else {
+                  item.classList.remove("active-nav-link");
+                }
+              });
+
+              navContainer.classList.remove("shift-center", "shift-left", "shift-right");
+              
+              if (currentId === "hero-top") {
+                navContainer.classList.add("shift-center");
+              } else if (currentId === "about-me-section") {
+                navContainer.classList.add("shift-right"); 
+              } else if (currentId === "projects-section") {
+                navContainer.classList.add("shift-left");  
+              } else if (currentId === "work-experience-section") {
+                navContainer.classList.add("shift-right"); 
+              } else if (currentId === "contact-section") {
+                navContainer.classList.add("shift-left");  
+              }
+            }
+          });
+        }, observerOptions);
+        setTimeout(() => {
+          sections.forEach(section => observer.observe(section));
+        }, 0);
+        // --- Custom Video Player Logic ---
+        const videoModal = document.getElementById("video-modal");
+        const videoModalBg = document.querySelector(".video-modal-bg");
+        const closeVideoBtn = document.getElementById("close-video-btn");
+        const video = document.getElementById("custom-player");
+        const volumeSlider = document.getElementById("volume-slider");
+        const playPauseBtn = document.getElementById("play-pause-btn");
+        const iconPlay = document.getElementById("icon-play");
+        const iconPause = document.getElementById("icon-pause");
+        const rewindBtn = document.getElementById("rewind-btn");
+        const forwardBtn = document.getElementById("forward-btn");
+        const muteBtn = document.getElementById("mute-btn");
+        const iconUnmute = document.getElementById("icon-unmute");
+        const iconMute = document.getElementById("icon-mute");
+        const fullscreenBtn = document.getElementById("fullscreen-btn");
+        const progressContainer = document.getElementById("progress-container");
+        const progressFill = document.getElementById("progress-fill");
+        const timeDisplay = document.getElementById("time-display");
+        const videoWrapper = document.querySelector(".video-wrapper");
+
+        // Open Modal
+        document.querySelectorAll(".preview-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            video.src = btn.getAttribute("data-video-src");
+            videoModal.classList.remove("hidden");
+            video.play();
+          });
+        });
+
+        // Close Modal
+        const closeModal = () => {
+          if (document.fullscreenElement) {
+            document.exitFullscreen().catch(err => console.log(err));
+          }
+          videoModal.classList.add("hidden");
+          video.pause();
+          video.src = ""; 
+        };
+        closeVideoBtn.addEventListener("click", closeModal);
+        videoModalBg.addEventListener("click", closeModal);
+
+        // Play / Pause
+        const togglePlay = () => {
+          if (video.paused) {
+            video.play();
+          } else {
+            video.pause();
+          }
+        };
+
+        // Added .blur() here to drop focus after clicking
+        playPauseBtn.addEventListener("click", (e) => {
+          togglePlay();
+          e.currentTarget.blur(); 
+        });
+        
+        video.addEventListener("click", () => {
+          togglePlay();
+        }); 
+
+        video.addEventListener("play", () => {
+          iconPlay.classList.add("hidden");
+          iconPause.classList.remove("hidden");
+        });
+        
+        video.addEventListener("pause", () => {
+          iconPlay.classList.remove("hidden");
+          iconPause.classList.add("hidden");
+        });
+
+        // Skip +5 / -5 seconds
+        rewindBtn.addEventListener("click", (e) => {
+            video.currentTime -= 5;
+            e.currentTarget.blur();
+        });
+        forwardBtn.addEventListener("click", (e) => {
+            video.currentTime += 5;
+            e.currentTarget.blur();
+        });
+
+        // Volume & Mute Logic
+        const updateMuteIcon = () => {
+          if (video.muted || video.volume === 0) {
+            iconUnmute.classList.add("hidden");
+            iconMute.classList.remove("hidden");
+          } else {
+            iconUnmute.classList.remove("hidden");
+            iconMute.classList.add("hidden");
+          }
+        };
+
+        volumeSlider.addEventListener("input", (e) => {
+          video.volume = e.target.value;
+          video.muted = video.volume === 0;
+          updateMuteIcon();
+        });
+
+        muteBtn.addEventListener("click", (e) => {
+          video.muted = !video.muted;
+          if (!video.muted && video.volume === 0) {
+            video.volume = 0.5; 
+            volumeSlider.value = 0.5;
+          } else {
+            volumeSlider.value = video.muted ? 0 : video.volume;
+          }
+          updateMuteIcon();
+          e.currentTarget.blur();
+        });
+
+        // Fullscreen
+        fullscreenBtn.addEventListener("click", (e) => {
+          if (!document.fullscreenElement) {
+            videoWrapper.requestFullscreen().catch(err => console.log(err));
+          } else {
+            document.exitFullscreen();
+          }
+          e.currentTarget.blur();
+        });
+
+        // --- KEYBOARD SHORTCUTS ---
+        document.addEventListener('keydown', (e) => {
+          if (videoModal.classList.contains("hidden")) return;
+
+          switch(e.code) {
+            case 'Space':
+              e.preventDefault(); 
+              
+              // CRITICAL FIX: Ignores rapid firing if the spacebar is held down
+              if (e.repeat) return; 
+
+              // Forcefully drop focus from anything else
+              if (document.activeElement) {
+                document.activeElement.blur(); 
+              }
+              
+              togglePlay();
+              break;
+              
+            case 'ArrowLeft':
+              e.preventDefault();
+              video.currentTime -= 5;
+              break;
+              
+            case 'ArrowRight':
+              e.preventDefault();
+              video.currentTime += 5;
+              break;
+              
+            case 'ArrowUp':
+              e.preventDefault(); 
+              video.volume = Math.min(1, video.volume + 0.1); 
+              volumeSlider.value = video.volume;
+              video.muted = video.volume === 0;
+              updateMuteIcon();
+              break;
+              
+            case 'ArrowDown':
+              e.preventDefault(); 
+              video.volume = Math.max(0, video.volume - 0.1); 
+              volumeSlider.value = video.volume;
+              video.muted = video.volume === 0;
+              updateMuteIcon();
+              break;
+          }
+        });
+
+        // Time Formatting helper
+        const formatTime = (timeInSeconds) => {
+          const result = new Date(timeInSeconds * 1000).toISOString().substring(14, 19);
+          return result.startsWith("00:") ? result.substring(3) : result;
+        };
+
+        // Update Progress Bar & Time
+        video.addEventListener("timeupdate", () => {
+          if (!video.duration) return;
+          const progressPercent = (video.currentTime / video.duration) * 100;
+          progressFill.style.width = `${progressPercent}%`;
+          timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+        });
+
+        // Click on Progress Bar to Seek
+        progressContainer.addEventListener("click", (e) => {
+          const rect = progressContainer.getBoundingClientRect();
+          const clickX = e.clientX - rect.left;
+          const width = rect.width;
+          const clickPercent = clickX / width;
+          video.currentTime = clickPercent * video.duration;
+        });
+      });
+    </script>
+    <div id="video-modal" class="video-modal hidden">
+      <div class="video-modal-bg"></div>
+      <div class="video-wrapper">
+        <button id="close-video-btn" class="close-video-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <video id="custom-player" class="custom-player" src="" playsinline></video>
+        
+        <div class="video-controls">
+          <div class="progress-bar-container" id="progress-container">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+          <div class="control-buttons">
+            <div class="left-controls">
+              <button id="play-pause-btn" class="control-btn">
+                <svg id="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <svg id="icon-pause" class="hidden" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+              </button>
+              <button id="rewind-btn" class="control-btn" title="Rewind 5s">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"></path></svg><span class="skip-text">-5s</span>
+              </button>
+              <button id="forward-btn" class="control-btn" title="Forward 5s">
+                <span class="skip-text">+5s</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"></path></svg>
+              </button>
+              <div class="time-display" id="time-display">0:00 / 0:00</div>
+            </div>
+            <div class="right-controls">
+              <div class="volume-container">
+                <button id="mute-btn" class="control-btn">
+                  <svg id="icon-unmute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                  <svg id="icon-mute" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="1" x2="1" y2="23"></line></svg>
+                </button>
+                <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.05" value="1">
+              </div>
+              <button id="fullscreen-btn" class="control-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      <script>
+        (function () {
+          var indicator = document.querySelector(".arrow-svg-wrapper");
+          if (!indicator) return;
+
+          function onFirstScroll() {
+            if (window.scrollY > 20) {
+              indicator.classList.add("hide-scroll-indicator");
+              window.removeEventListener("scroll", onFirstScroll);
+            }
+          }
+          window.addEventListener("scroll", onFirstScroll, { passive: true });
+        })();
+      </script>
+  </body>
+</html>
