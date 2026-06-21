@@ -1,7 +1,7 @@
 # Ayush Shukla — 3D Portfolio
 
 A fully interactive 3D portfolio built with Three.js, GSAP, and vanilla JS.  
-Live at: **[your-github-pages-url]**
+Live at: **[URL coming soon....]**
 
 ## Tech Stack
 
